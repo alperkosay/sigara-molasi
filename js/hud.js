@@ -2,7 +2,7 @@
 const HUD = (() => {
   const $ = id => document.getElementById(id);
   const el = {
-    hud: $('hud'), hp: $('hp'), ammo: $('ammo'), wname: $('wname'), cigs: $('cigs'), pack: $('pack'), cigstick: $('cigstick'), pWep: $('pWep'), hpbar: $('hpbar'),
+    hud: $('hud'), keys: $('keys'), hp: $('hp'), ammo: $('ammo'), wname: $('wname'), cigs: $('cigs'), pack: $('pack'), cigstick: $('cigstick'), pWep: $('pWep'), hpbar: $('hpbar'),
     floor: $('floor'), score: $('score'), kills: $('kills'), speed: $('speed'), combo: $('combo'), comboX: $('comboX'), comboT: $('comboT'),
     feed: $('feed'), msg: $('msg'), slowmo: $('slowmo'), hit: $('hitmarker'), dash: $('dash').children, face: $('face'),
   };
@@ -131,6 +131,8 @@ const HUD = (() => {
       for (let i = 0; i < 15; i++) put('hs' + i, hpSegs[i], i < Math.min(segs, 10) ? 'on' : i >= 10 && i < segs ? 'over' : '', 'className');
       put('hpbl', el.hpbar, s.hp <= 30 ? 'low' : '', 'className');
       put('ammo', el.ammo, String(s.ammo));
+      // tuş yönergeleri: [tuş, açıklama, durum('', 'off', 'hot')]
+      put('keys', el.keys, s.keys.map(([k, t, c]) => `<div class="k ${c || ''}">${k.split(' ').map(x => `<kbd>${x.replace('_', ' ')}</kbd>`).join('')}<span>${t}</span></div>`).join(''), 'innerHTML');
       put('wname', el.wname, s.wname);
       put('pwep', el.pWep, s.office ? 'panel right office' : 'panel right', 'className');
       s.slots.forEach((a, i) => {

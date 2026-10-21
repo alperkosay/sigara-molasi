@@ -324,7 +324,7 @@
     World.openDrawer(); SND.play('kick');
     const eye = V3(o.seat.x, C.eye - P.seatDip, o.seat.z), d = o.drawerPos.clone().sub(eye);
     P.lookYaw = Math.atan2(-d.x, -d.z); P.lookPitch = Math.atan2(d.y, Math.hypot(d.x, d.z)); P.lookT = 1.4;
-    HUD.msg("BEDİRHAN ABİ'NİN ZİPPOSU", 'F — bir tane yak', 60, true);
+    HUD.msg("BEDİRHAN ABİ'NİN ZİPPOSU", 'F / sol tık — bir tane yak', 60, true);
     // bu çağrı portaldan geçene kadar ekranda kalır
     setTimeout(() => { if (P.office) { HUD.dm('Bak çekmecede ne var... Yak bir tane kardeşim. Mola zamanı.', Infinity); SND.play('phone'); setTimeout(() => SND.play('talk'), 350); } }, 900);
   }
@@ -452,7 +452,10 @@
     up.crossVectors(right, fwd).normalize();
   }
   function fire() {
-    if (P.office) { slam(); P.fireCD = 0.3; return; }   // ofiste: klavyeye yumruk
+    if (P.office) {   // ofiste: klavyeye yumruk / çekmecedeki zippoyu al
+      if (P.officePhase === 'drawer') lightWithZippo(); else slam();
+      P.fireCD = 0.3; return;
+    }
     const w = WEP[P.weapon];
     if (w.ammo && P.ammo[w.ammo] < 1) {
       SND.play('empty'); P.fireCD = 0.3;
@@ -732,6 +735,22 @@
     if (P.pos.y < -15) { P.pos.set(0, 0.5, c.rz0 - 3); P.vel.set(0, 0, 0); G.hurt(15, P.pos); }
   }
 
+  // ekranda sürekli duran, duruma göre değişen tuş yönergeleri
+  function keyHints(atDesk, atDrawer) {
+    if (atDesk) return [['SOL_TIK SPACE', 'KLAVYEYE VUR', 'hot'], ['FARE', 'ETRAFA BAK']];
+    if (atDrawer) return [['F SOL_TIK', P.officePhase === 'drawer' ? 'ZİPPOYU AL, YAK' : 'YAKIYORSUN...', P.officePhase === 'drawer' ? 'hot' : ''], ['FARE', 'ETRAFA BAK']];
+    if (P.office) return [['W', 'KAPIDAN GİR', 'hot'], ['W A S D', 'YÜRÜ']];
+    const cs = VM.cigState;
+    return [
+      ['SPACE', 'BAS TUT: BUNNYHOP'],
+      ['A D', 'HAVADA + FARE: HIZLAN'],
+      ['SHIFT', 'ATIL', P.dash < 1 ? 'off' : ''],
+      ['E', 'TEKME'],
+      ['F', cs === 'lit' ? 'İZMARİTİ AT' : cs === 'none' ? 'SİGARA YAK' : 'YAKIYORSUN...', cs === 'none' && P.hp < 50 ? 'hot' : cs === 'none' || cs === 'lit' ? '' : 'off'],
+      ['1 2 3', 'SİLAH DEĞİŞTİR'],
+    ];
+  }
+
   // ================= DÖNGÜ =================
   let last = performance.now(), menuT = 0;
   function frame(now) {
@@ -842,7 +861,7 @@
     HUD.update({
       hp: P.hp, ammo: atDesk ? '%' + Math.round(P.stress * 100) : atDrawer ? 'F' : P.office ? '→' : w.ammo ? P.ammo[w.ammo] : '∞',
       wname: atDesk ? 'STRES' : atDrawer ? 'ZİPPO' : P.office ? 'MOLA' : w.name,
-      office: P.office, weapon: P.weapon, slots: WEP.map(x => x.ammo ? P.ammo[x.ammo] : '∞'),
+      keys: keyHints(atDesk, atDrawer), office: P.office, weapon: P.weapon, slots: WEP.map(x => x.ammo ? P.ammo[x.ammo] : '∞'),
       smoking: P.smoking, burn: VM.burn, floor: P.floor, score: P.score, kills: P.kills, speed: hs,
       combo: P.combo, mult: 1 + Math.min(4, Math.floor(P.combo / 4)), comboFrac: Math.max(0, P.comboT / 3.5), dash: P.dash, slowmo: P.slowmo, time,
     }, rdt);

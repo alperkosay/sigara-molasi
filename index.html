@@ -63,6 +63,14 @@
   #cigstick .filter { width:12px; height:6px; background:#c88a3a; }
   #cigstick .paper { width:60px; height:6px; background:#f2efe6; }
   #cigstick .ember { width:5px; height:6px; background:#ff6010; box-shadow:0 0 7px 2px #ff6010; }
+  #keys { position:absolute; left:18px; bottom:150px; display:flex; flex-direction:column; gap:6px; }
+  #keys .k { display:flex; align-items:center; gap:10px; font-size:20px; letter-spacing:2px; color:#e8dcc0; text-shadow:2px 2px 0 #000; transition:opacity .2s; }
+  #keys .k.off { opacity:.35; }
+  #keys .k.hot { color:var(--amber); }
+  #keys .k.hot kbd { border-color:var(--amber); color:var(--amber); animation:keypulse 1s ease-in-out infinite; }
+  #keys kbd { min-width:30px; padding:1px 8px 2px; text-align:center; font-family:'VT323', monospace; font-size:20px; color:#fff;
+    background:#1a1210; border:2px solid #8a7860; border-bottom-width:4px; border-radius:4px; }
+  @keyframes keypulse { 50% { transform:translateY(2px); border-bottom-width:2px; } }
   #topl { position:absolute; left:22px; top:16px; font-size:26px; line-height:26px; }
   #topl .big { font-size:40px; color:var(--amber); }
   #topr { position:absolute; right:22px; top:16px; text-align:right; font-size:26px; }
@@ -77,7 +85,7 @@
   #feed div { color:var(--amber); animation:feed 2.2s forwards; }
   #feed div.hot { color:#ff40c0; font-size:34px; }
 
-  #msg { position:absolute; left:0; right:0; top:22%; text-align:center; font-family:'Metal Mania', serif;
+  #msg { position:absolute; left:0; right:0; top:29%; text-align:center; font-family:'Metal Mania', serif;
     font-size:64px; color:var(--red); opacity:0; transition:opacity .2s; letter-spacing:2px; }
   #msg small { display:block; font-family:'VT323', monospace; font-size:28px; color:var(--bone); letter-spacing:4px; }
   #dm { position:absolute; left:50%; top:86px; transform:translate(-50%, -20px); min-width:420px; max-width:92vw;
@@ -124,7 +132,7 @@
 
   @media (max-width:700px) {
     .panel { min-width:0; } .val { font-size:40px; line-height:34px; } #face { width:64px; height:64px; } .slot { width:58px; } .slot canvas { width:48px; height:16px; }
-    #bar { padding:0 12px 10px; } #msg { font-size:40px; }
+    #bar { padding:0 12px 10px; } #msg { font-size:40px; } #keys { bottom:120px; } #keys .k { font-size:16px; }
   }
 </style>
 </head>
@@ -147,6 +155,7 @@
   <div id="msg" class="shadow"></div>
   <div id="dm"><canvas id="dmFace" width="32" height="32"></canvas><div class="bubble"><div class="from">✆ BEDİRHAN ABİ <i>arıyor...</i></div><div class="txt" id="dmText"></div></div></div>
   <div id="slowmo" class="shadow">S O Ğ U K K A N L I</div>
+  <div id="keys"></div>
   <div id="bar">
     <div class="panel">
       <div class="row"><canvas id="heart" width="12" height="11"></canvas><span class="val" id="hp">100</span><span class="lbl">CAN</span></div>
