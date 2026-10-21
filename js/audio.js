@@ -128,6 +128,12 @@ const SND = (() => {
       for (let i = 0; i < 6; i++) noise(t + 0.05 + Math.random() * 0.25, 0.02, { type: 'highpass', f0: 3000, f1: 4000, vol: 0.25 });
       noise(t, 0.35, { f0: 700, f1: 90, vol: 0.7 });
     },
+    phone() { const t = now();   // ofis telefonu: iki kısa zil
+      for (let r = 0; r < 2; r++) for (let i = 0; i < 14; i++) { const f = i % 2 ? 1250 : 1550; tone(t + r * 0.55 + i * 0.03, 0.028, { type: 'square', f0: f, f1: f, vol: 0.035 }); }
+    },
+    talk() { const t = now();   // retro diyalog "bıdı bıdı"
+      for (let i = 0; i < 6; i++) { const f = 170 + Math.random() * 130; tone(t + i * 0.065, 0.045, { type: 'square', f0: f, f1: f * 0.85, vol: 0.05 }); }
+    },
     typing() { const t = now(); noise(t, 0.015, { type: 'highpass', f0: 3500, f1: 4000, vol: 0.05 + Math.random() * 0.04 }); },
     buzz() { const t = now(); tone(t, 0.12, { type: 'square', f0: 100, f1: 98, vol: 0.05 }); },
     portalOpen() { const t = now();

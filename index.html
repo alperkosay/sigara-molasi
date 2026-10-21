@@ -28,23 +28,41 @@
   #hitmarker::after { top:16px; left:0; height:2px; width:34px; }
   #hitmarker.kill::before, #hitmarker.kill::after { background:var(--red); }
 
-  #bar { position:absolute; left:0; right:0; bottom:0; height:96px; display:flex; align-items:flex-end; justify-content:space-between;
-    padding:0 22px 14px; background:linear-gradient(to top, rgba(0,0,0,.85), rgba(0,0,0,0)); }
-  .stat { display:flex; flex-direction:column; min-width:170px; }
-  .stat .lbl { font-size:20px; letter-spacing:3px; color:#a08a70; }
-  .stat .val { font-size:64px; line-height:52px; color:var(--bone); }
-  .stat .val.low { color:var(--red); animation:blink .4s steps(2) infinite; }
-  .stat.right { align-items:flex-end; text-align:right; }
-  #wlist { font-size:20px; letter-spacing:2px; color:#6b5a48; }
-  #wlist b { color:var(--amber); font-weight:normal; }
-  #cigs { font-size:22px; color:#a08a70; margin-top:4px; }
-  #cigbar { width:140px; height:6px; background:#2a1a10; margin-top:4px; }
-  #cigbar i { display:block; height:100%; width:0; background:linear-gradient(90deg,#ff5a00,#ffd27a); }
-  #face { width:96px; height:96px; image-rendering:pixelated; border:3px solid #3a2a1c; background:#120a06; margin-bottom:-4px; }
-  #dash { display:flex; gap:4px; margin-top:6px; }
-  #dash i { width:30px; height:6px; background:#40e0ff; }
+  #bar { position:absolute; left:0; right:0; bottom:0; display:flex; align-items:flex-end; justify-content:space-between; padding:0 18px 12px; }
+  .panel { background:rgba(12,6,6,.74); border:2px solid #6a1a10; padding:8px 14px 10px; min-width:260px;
+    clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+  .panel .row { display:flex; align-items:center; gap:10px; }
+  .panel.right .row { justify-content:flex-end; }
+  .lbl { font-size:18px; letter-spacing:3px; color:#a08a70; }
+  .val { font-size:58px; line-height:46px; color:var(--bone); text-shadow:2px 2px 0 #000; }
+  .val.low { color:var(--red); animation:blink .4s steps(2) infinite; }
+  #heart { width:36px; height:33px; image-rendering:pixelated; }
+  #hpbar { display:flex; gap:2px; margin:7px 0 6px; }
+  #hpbar i { width:14px; height:12px; background:#2a0c08; box-shadow:inset 0 0 0 1px #000; }
+  #hpbar i.on { background:linear-gradient(#ff5a3a, #a01008); }
+  #hpbar i.over { background:linear-gradient(#ffd870, #c07010); }
+  #hpbar.low i.on { animation:blink .4s steps(2) infinite; }
+  #dash { display:flex; gap:4px; }
+  #dash i { width:30px; height:7px; background:#40e0ff; }
   #dash i.off { background:#173040; }
-
+  .facebox { padding:4px; background:#120806; border:2px solid #6a1a10; }
+  #face { width:96px; height:96px; image-rendering:pixelated; display:block; }
+  #slots { display:flex; gap:6px; justify-content:flex-end; margin:8px 0 7px; }
+  .slot { position:relative; width:80px; padding:4px 4px 1px; background:#160a08; border:2px solid #3a2418; opacity:.5; text-align:center; transition:transform .1s; }
+  .slot canvas { width:66px; height:22px; image-rendering:pixelated; display:block; margin:3px auto 0; }
+  .slot b { position:absolute; left:4px; top:0; font-weight:normal; font-size:15px; color:#a08a70; }
+  .slot span { font-size:19px; color:var(--bone); }
+  .slot.sel { opacity:1; border-color:var(--red); background:#2a0c08; transform:translateY(-5px); }
+  .slot.empty span { color:var(--red); }
+  #pWep.office #slots, #pWep.office #pack, #pWep.office #cigstick { display:none; }
+  #pack { display:flex; gap:2px; }
+  #pack i { width:5px; height:16px; background:linear-gradient(#f2efe6 68%, #c88a3a 68%); }
+  #cigs { font-size:20px; color:#a08a70; min-width:2.2em; }
+  #cigstick { display:flex; align-items:center; margin-right:6px; opacity:0; }
+  #cigstick.on { opacity:1; }
+  #cigstick .filter { width:12px; height:6px; background:#c88a3a; }
+  #cigstick .paper { width:60px; height:6px; background:#f2efe6; }
+  #cigstick .ember { width:5px; height:6px; background:#ff6010; box-shadow:0 0 7px 2px #ff6010; }
   #topl { position:absolute; left:22px; top:16px; font-size:26px; line-height:26px; }
   #topl .big { font-size:40px; color:var(--amber); }
   #topr { position:absolute; right:22px; top:16px; text-align:right; font-size:26px; }
@@ -62,6 +80,14 @@
   #msg { position:absolute; left:0; right:0; top:22%; text-align:center; font-family:'Metal Mania', serif;
     font-size:64px; color:var(--red); opacity:0; transition:opacity .2s; letter-spacing:2px; }
   #msg small { display:block; font-family:'VT323', monospace; font-size:28px; color:var(--bone); letter-spacing:4px; }
+  #dm { position:absolute; left:50%; top:86px; transform:translate(-50%, -20px); min-width:420px; max-width:92vw;
+    display:flex; align-items:center; gap:14px; background:rgba(12,10,14,.9); border-left:5px solid var(--red);
+    padding:8px 18px 8px 8px; opacity:0; transition:opacity .25s, transform .25s; box-shadow:0 4px 0 rgba(0,0,0,.6); }
+  #dm.on { opacity:1; transform:translate(-50%, 0); }
+  #dmFace { width:76px; height:76px; image-rendering:pixelated; border:2px solid #6a1a10; background:#120806; flex:none; }
+  #dm .from { font-size:18px; letter-spacing:3px; color:var(--red); }
+  #dm .from i { font-style:normal; color:#8a7860; animation:blink 1s steps(2) infinite; }
+  #dm .txt { font-size:28px; color:#fff; }
   #slowmo { position:absolute; left:0; right:0; top:62%; text-align:center; font-size:30px; letter-spacing:12px; color:#ffd27a; opacity:0; }
 
   .overlay { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -70,6 +96,21 @@
   .title { font-family:'Metal Mania', serif; font-size:clamp(52px, 10.5vw, 150px); line-height:.9; color:var(--red);
     text-shadow:0 0 30px rgba(255,40,0,.45), 6px 6px 0 #000; letter-spacing:4px; }
   .sub { font-size:clamp(20px,3vw,30px); letter-spacing:8px; color:var(--amber); margin:10px 0 28px; }
+  .settings { display:flex; align-items:center; gap:14px 18px; flex-wrap:wrap; justify-content:center; margin:0 0 22px;
+    padding:10px 18px; border:2px solid #3a2a1c; background:rgba(0,0,0,.55); font-size:22px; cursor:default; }
+  .settings label { display:flex; align-items:center; gap:8px; color:#cdbfa3; letter-spacing:2px; }
+  .settings b { color:var(--amber); font-weight:normal; min-width:3.2em; }
+  .settings input[type=range] { width:200px; accent-color:var(--red); cursor:pointer; }
+  .settings input[type=checkbox] { width:18px; height:18px; accent-color:var(--red); cursor:pointer; }
+  .legal { max-width:760px; text-align:left; font-size:clamp(19px,2.4vw,25px); line-height:1.25; color:#d8ccb0;
+    border:3px solid var(--red); background:rgba(0,0,0,.75); padding:22px 28px; margin-bottom:26px; }
+  .legal h1 { font-family:'Metal Mania', serif; font-weight:normal; color:var(--red); font-size:clamp(40px,6vw,64px); text-align:center; margin-bottom:12px; letter-spacing:3px; }
+  .legal p { margin:10px 0; }
+  .legal b { color:#fff; font-weight:normal; }
+  .legal .help { text-align:center; color:var(--amber); font-size:1.1em; border-top:1px solid #3a2a1c; padding-top:12px; }
+  .legal .help span { font-size:1.6em; color:#fff; letter-spacing:3px; }
+  .legal .small { text-align:center; margin-top:8px; }
+  .warn { position:absolute; bottom:10px; left:0; right:0; font-size:17px; color:#8a7860; letter-spacing:1px; }
   .story { font-size:clamp(18px,2.4vw,24px); color:#cdbfa3; margin:-14px 0 22px; line-height:1.15; }
   .keys { display:grid; grid-template-columns:auto auto; gap:2px 22px; font-size:22px; text-align:left; color:#cdbfa3; margin-bottom:26px; }
   .keys b { color:var(--amber); font-weight:normal; text-align:right; }
@@ -82,7 +123,7 @@
   @keyframes feed { 0% { opacity:0; transform:translateX(30px); } 10% { opacity:1; transform:none; } 80% { opacity:1; } 100% { opacity:0; } }
 
   @media (max-width:700px) {
-    .stat { min-width:110px; } .stat .val { font-size:44px; line-height:38px; } #face { width:64px; height:64px; }
+    .panel { min-width:0; } .val { font-size:40px; line-height:34px; } #face { width:64px; height:64px; } .slot { width:58px; } .slot canvas { width:48px; height:16px; }
     #bar { padding:0 12px 10px; } #msg { font-size:40px; }
   }
 </style>
@@ -104,45 +145,73 @@
   <div id="combo" class="shadow"><div class="x" id="comboX">x1</div><div class="t" id="comboT"></div></div>
   <div id="feed" class="shadow"></div>
   <div id="msg" class="shadow"></div>
+  <div id="dm"><canvas id="dmFace" width="32" height="32"></canvas><div class="bubble"><div class="from">✆ BEDİRHAN ABİ <i>arıyor...</i></div><div class="txt" id="dmText"></div></div></div>
   <div id="slowmo" class="shadow">S O Ğ U K K A N L I</div>
-  <div id="bar" class="shadow">
-    <div class="stat">
-      <span class="lbl">CAN</span><span class="val" id="hp">100</span>
-      <div id="dash"><i></i><i></i></div>
+  <div id="bar">
+    <div class="panel">
+      <div class="row"><canvas id="heart" width="12" height="11"></canvas><span class="val" id="hp">100</span><span class="lbl">CAN</span></div>
+      <div id="hpbar"></div>
+      <div class="row"><span class="lbl">ATIL</span><div id="dash"><i></i><i></i></div></div>
     </div>
-    <div class="stat" style="align-items:center;min-width:0">
-      <canvas id="face" width="32" height="32"></canvas>
-    </div>
-    <div class="stat right">
-      <span class="lbl" id="wname">ÇİFTE</span><span class="val" id="ammo">24</span>
-      <div id="wlist"></div>
-      <div id="cigs">SİGARA 5</div>
-      <div id="cigbar"><i></i></div>
+    <div class="facebox"><canvas id="face" width="32" height="32"></canvas></div>
+    <div class="panel right" id="pWep">
+      <div class="row"><span class="lbl" id="wname">ÇİFTE</span><span class="val" id="ammo">∞</span></div>
+      <div id="slots">
+        <div class="slot"><b>1</b><canvas width="48" height="16"></canvas><span>∞</span></div>
+        <div class="slot"><b>2</b><canvas width="48" height="16"></canvas><span>∞</span></div>
+        <div class="slot"><b>3</b><canvas width="48" height="16"></canvas><span>∞</span></div>
+      </div>
+      <div class="row"><div id="cigstick"><i class="filter"></i><i class="paper"></i><i class="ember"></i></div><div id="pack"></div><span id="cigs">×∞</span></div>
     </div>
   </div>
 </div>
 
-<div id="menu" class="overlay">
+<div id="legal" class="overlay">
+  <div class="legal">
+    <h1>YASAL UYARI</h1>
+    <p>Bu oyun <b>tamamen kurgudur</b>. Oyundaki karakterler, şirket, mailler ve olaylar hayal ürünüdür;
+      <b>gerçek kişi, kurum ve kuruluşlarla hiçbir ilgisi yoktur.</b> Benzerlikler tesadüftür.</p>
+    <p>Bu oyun sigara ve tütün ürünlerini <b>özendirmez, tavsiye etmez.</b> Sigara bağımlılık yapar;
+      kanser, kalp ve akciğer hastalıklarına yol açar ve <b>öldürür.</b> Oyundaki sigara yalnızca bir oyun mekaniğidir.</p>
+    <p class="help">Sigarayı bırakmak istiyorsan ücretsiz destek al:<br><span>ALO 171</span> Sigara Bırakma Danışma Hattı</p>
+    <p class="small">Şiddet içerikli kurgusal sahneler içerir.</p>
+  </div>
+  <div class="cta">OKUDUM, ANLADIM — DEVAM</div>
+</div>
+
+<div id="menu" class="overlay hidden">
   <div class="title">SİGARA MOLASI</div>
   <div class="sub">MESAİ BİTMEDEN 5 DAKİKALIK CEHENNEM</div>
   <div class="story">Ofiste sigara yasak. Ama portalın öbür tarafında<br>kimse karışmıyor — sadece şeytanlar var.</div>
   <div class="keys">
     <b>WASD</b><span>koş</span>
-    <b>SPACE (basılı)</b><span>zıpla / bunnyhop — havada A/D + fare ile hızlan</span>
+    <b>SPACE (basılı)</b><span>bunnyhop — havada W'yi bırak, A/D + fareyi aynı yöne çevir</span>
     <b>SHIFT</b><span>atıl (dash)</span>
-    <b>SOL TIK</b><span>ateş (ofiste: kahve)</span>
+    <b>SOL TIK</b><span>ateş (ofiste: klavyeye vur)</span>
     <b>1 2 3 / TEKER / Q</b><span>çifte · makineli · roketatar</span>
     <b>E</b><span>tekme</span>
     <b>F</b><span>sigara yak — yanarken F: izmariti fırlat</span>
     <b>M</b><span>müzik aç/kapa</span>
+    <b>[ ]</b><span>fare hassasiyeti</span>
+  </div>
+  <div class="settings">
+    <label>FARE HASSASİYETİ <b class="sensVal">1.00</b></label>
+    <input type="range" class="sens" min="0.1" max="4" step="0.05" value="1">
+    <label class="chk"><input type="checkbox" class="fs" checked> TAM EKRAN</label>
   </div>
   <div class="cta">TIKLA — MESAİYE BAŞLA</div>
   <div class="small" id="best"></div>
+  <div class="warn">Kurgudur · sigarayı özendirmez · Sigara öldürür — bırakmak için ALO 171</div>
 </div>
 
 <div id="pause" class="overlay hidden">
   <div class="title" style="font-size:clamp(56px,10vw,110px)">TOPLANTIDA</div>
   <div class="sub">bu toplantı bir e-posta olabilirdi</div>
+  <div class="settings">
+    <label>FARE HASSASİYETİ <b class="sensVal">1.00</b></label>
+    <input type="range" class="sens" min="0.1" max="4" step="0.05" value="1">
+    <label class="chk"><input type="checkbox" class="fs" checked> TAM EKRAN</label>
+  </div>
   <div class="cta" style="margin-top:20px">DEVAM İÇİN TIKLA</div>
 </div>
 
@@ -151,6 +220,7 @@
   <div class="sub">durum İK'ya bildirildi</div>
   <div class="stats" id="deadStats"></div>
   <div class="cta">TIKLA — TEKRAR</div>
+  <div class="warn">Gerçek hayatta sigara molası yoktur, sadece sigara vardır. Bırakmak için ALO 171</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

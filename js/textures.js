@@ -26,6 +26,16 @@ const TEX = (() => {
       for (let k = 0; k < len; k++) { g.fillStyle = rgb(110 + rnd() * 40, 5, 5, 0.85 - k / len * 0.6); g.fillRect(x + (rnd() < 0.1 ? 1 : 0), y + k, rnd() < 0.3 ? 2 : 1, 1); }
     }
   }
+  function cracks(g, n, col, hot) {   // rastgele yürüyen parlak çatlaklar
+    for (let i = 0; i < n; i++) {
+      let x = ri(0, 63), y = ri(0, 63);
+      const len = ri(14, 30);
+      for (let k = 0; k < len; k++) {
+        g.fillStyle = k % 5 === 0 ? hot : col; g.fillRect((x + 64) % 64, (y + 64) % 64, 1, 1);
+        if (rnd() < 0.5) x += rnd() < 0.5 ? -1 : 1; else y += rnd() < 0.5 ? -1 : 1;
+      }
+    }
+  }
   function finish(c, repeat = true) {
     const t = new THREE.CanvasTexture(c);
     t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestMipmapLinearFilter;
@@ -34,68 +44,28 @@ const TEX = (() => {
   }
 
   const make = {
-    brick() { const [c, g] = canvas(64);
-      g.fillStyle = '#2a201a'; g.fillRect(0, 0, 64, 64);
-      for (let row = 0; row < 8; row++) for (let col = -1; col < 4; col++) {
-        const x = col * 16 + (row % 2) * 8, y = row * 8, v = ri(-14, 14);
-        g.fillStyle = rgb(92 + v, 60 + v, 46 + v); g.fillRect(x + 1, y + 1, 15, 7);
-        g.fillStyle = rgb(120 + v, 82 + v, 62 + v); g.fillRect(x + 1, y + 1, 15, 1);
-        g.fillStyle = rgb(60 + v, 38 + v, 30 + v); g.fillRect(x + 1, y + 7, 15, 1);
-      }
-      speckle(g, 64, 64, 500, [80, 55, 42], 40); grime(g, 64, 64, 30); bloodStreaks(g, 64, 64, 2);
-      return finish(c); },
-    metal() { const [c, g] = canvas(64);
-      g.fillStyle = '#4a4e52'; g.fillRect(0, 0, 64, 64);
-      for (const [x, y, w, h] of [[0, 0, 32, 32], [32, 0, 32, 32], [0, 32, 64, 32]]) {
-        const v = ri(-10, 10);
-        g.fillStyle = rgb(70 + v, 76 + v, 82 + v); g.fillRect(x + 1, y + 1, w - 2, h - 2);
-        g.fillStyle = rgb(110, 116, 120); g.fillRect(x + 1, y + 1, w - 2, 1); g.fillRect(x + 1, y + 1, 1, h - 2);
-        g.fillStyle = rgb(28, 30, 34); g.fillRect(x + 1, y + h - 2, w - 2, 1); g.fillRect(x + w - 2, y + 1, 1, h - 2);
-        g.fillStyle = '#9aa0a4';
-        for (const [rx, ry] of [[x + 3, y + 3], [x + w - 5, y + 3], [x + 3, y + h - 5], [x + w - 5, y + h - 5]]) g.fillRect(rx, ry, 2, 2);
-      }
-      g.fillStyle = '#c8a020'; for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#111' : '#c8a020'; g.fillRect(i * 8, 44, 8, 4); }
-      speckle(g, 64, 64, 400, [70, 74, 78], 30); grime(g, 64, 64, 50); bloodStreaks(g, 64, 64, 1);
-      return finish(c); },
-    floor() { const [c, g] = canvas(64);
-      for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++) {
-        const v = ri(-8, 8);
-        g.fillStyle = rgb(52 + v, 48 + v, 44 + v); g.fillRect(x * 32, y * 32, 32, 32);
-        g.fillStyle = rgb(30, 27, 24); g.fillRect(x * 32, y * 32, 32, 1); g.fillRect(x * 32, y * 32, 1, 32);
-        g.fillStyle = rgb(72 + v, 68 + v, 62 + v); g.fillRect(x * 32 + 1, y * 32 + 1, 30, 1);
-      }
-      // çatlaklar
-      g.fillStyle = '#1a1714';
-      for (let i = 0; i < 4; i++) { let x = ri(0, 63), y = ri(0, 63); for (let k = 0; k < 12; k++) { g.fillRect(x, y, 1, 1); x += ri(-1, 1); y += ri(0, 1); } }
-      speckle(g, 64, 64, 600, [50, 46, 42], 30); grime(g, 64, 64, 60);
-      return finish(c); },
     hellrock() { const [c, g] = canvas(64);
-      g.fillStyle = '#1c0604'; g.fillRect(0, 0, 64, 64);
+      g.fillStyle = '#16100e'; g.fillRect(0, 0, 64, 64);
       for (let i = 0; i < 26; i++) {
         const x = ri(0, 63), y = ri(0, 63), r = ri(5, 11), v = ri(-20, 20);
         for (let dx = -r; dx <= r; dx++) for (let dy = -r; dy <= r; dy++) {
           if (dx * dx + dy * dy > r * r) continue;
           const sh = (dy < 0 ? 18 : -10);
-          g.fillStyle = rgb(96 + v + sh, 26 + v / 3 + sh / 3, 18 + sh / 4);
+          g.fillStyle = rgb(72 + v + sh, 54 + v * 0.8 + sh * 0.8, 46 + v * 0.7 + sh * 0.6);
           g.fillRect((x + dx + 64) % 64, (y + dy + 64) % 64, 1, 1);
         }
       }
-      g.fillStyle = '#ff5a10'; for (let i = 0; i < 30; i++) g.fillRect(ri(0, 63), ri(0, 63), 1, 1);
-      speckle(g, 64, 64, 400, [70, 18, 12], 40);
+      speckle(g, 64, 64, 400, [56, 42, 36], 34);
+      g.fillStyle = '#ff7a20'; for (let i = 0; i < 18; i++) g.fillRect(ri(0, 63), ri(0, 63), 1, 1);
       return finish(c); },
     flesh() { const [c, g] = canvas(64);
-      g.fillStyle = '#5a1418'; g.fillRect(0, 0, 64, 64);
-      speckle(g, 64, 64, 1400, [120, 40, 44], 50);
+      g.fillStyle = '#4a2428'; g.fillRect(0, 0, 64, 64);
+      speckle(g, 64, 64, 1400, [112, 62, 66], 46);
       for (let i = 0; i < 7; i++) { // damarlar
         let x = ri(0, 63), y = ri(0, 63);
         for (let k = 0; k < 50; k++) { g.fillStyle = rgb(40, 10, 40, 0.9); g.fillRect((x + 64) % 64, (y + 64) % 64, 2, 1); x += ri(-1, 1); y += ri(-1, 1); }
       }
       for (let i = 0; i < 10; i++) { g.fillStyle = rgb(200, 150, 90, 0.8); g.fillRect(ri(0, 62), ri(0, 62), 2, 2); }
-      return finish(c); },
-    ceiling() { const [c, g] = canvas(64);
-      g.fillStyle = '#1e1e22'; g.fillRect(0, 0, 64, 64);
-      for (let i = 0; i < 4; i++) { g.fillStyle = '#2c2c32'; g.fillRect(i * 16 + 1, 0, 14, 64); g.fillStyle = '#0c0c0e'; g.fillRect(i * 16, 0, 1, 64); }
-      speckle(g, 64, 64, 300, [36, 36, 40], 20); grime(g, 64, 64, 30);
       return finish(c); },
     lava() { const [c, g] = canvas(64);
       for (let y = 0; y < 64; y++) for (let x = 0; x < 64; x++) {
@@ -104,29 +74,6 @@ const TEX = (() => {
         g.fillStyle = k > 0.7 ? '#ffe070' : k > 0.5 ? '#ff9a10' : k > 0.3 ? '#e04008' : '#801404';
         g.fillRect(x, y, 1, 1);
       }
-      return finish(c); },
-    crate() { const [c, g] = canvas(32);
-      g.fillStyle = '#5c5a3a'; g.fillRect(0, 0, 32, 32);
-      g.fillStyle = '#3a3824'; g.fillRect(0, 0, 32, 3); g.fillRect(0, 29, 32, 3); g.fillRect(0, 0, 3, 32); g.fillRect(29, 0, 3, 32);
-      g.fillStyle = '#46442c'; for (let i = 3; i < 29; i++) { g.fillRect(i, i, 2, 1); g.fillRect(31 - i, i, 2, 1); }
-      g.fillStyle = '#8a8658'; g.fillRect(1, 1, 30, 1); g.fillRect(1, 1, 1, 30);
-      g.fillStyle = '#c8a020'; g.fillRect(12, 13, 8, 6); g.fillStyle = '#111'; g.fillRect(14, 15, 4, 2);
-      speckle(g, 32, 32, 120, [80, 78, 50], 30);
-      return finish(c); },
-    barrel() { const [c, g] = canvas(32);
-      g.fillStyle = '#8a1010'; g.fillRect(0, 0, 32, 32);
-      for (let x = 0; x < 32; x++) { const v = Math.sin(x / 32 * Math.PI * 2) * 25; g.fillStyle = rgb(150 + v, 20, 16); g.fillRect(x, 0, 1, 32); }
-      g.fillStyle = '#300'; g.fillRect(0, 4, 32, 2); g.fillRect(0, 26, 32, 2);
-      for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? '#111' : '#e8c020'; g.fillRect(i * 4, 13, 4, 6); }
-      speckle(g, 32, 32, 80, [60, 10, 8], 30);
-      return finish(c); },
-    door() { const [c, g] = canvas(64);
-      g.fillStyle = '#3c3e40'; g.fillRect(0, 0, 64, 64);
-      for (let i = -8; i < 16; i++) { g.fillStyle = i % 2 ? '#141414' : '#d0a018'; g.beginPath(); g.moveTo(i * 8, 64); g.lineTo(i * 8 + 8, 64); g.lineTo(i * 8 + 24, 48); g.lineTo(i * 8 + 16, 48); g.fill(); }
-      g.fillStyle = '#5a5e62'; g.fillRect(0, 0, 64, 44);
-      g.fillStyle = '#22262a'; g.fillRect(31, 0, 2, 44);
-      g.fillStyle = '#7a8084'; for (let y = 6; y < 44; y += 10) { g.fillRect(4, y, 24, 2); g.fillRect(36, y, 24, 2); }
-      speckle(g, 64, 64, 300, [80, 84, 88], 30); grime(g, 64, 64, 30);
       return finish(c); },
     light() { const [c, g] = canvas(16);
       g.fillStyle = '#fff'; g.fillRect(0, 0, 16, 16); g.fillStyle = '#d0d0c0'; g.fillRect(0, 0, 16, 2); g.fillRect(0, 14, 16, 2);
@@ -140,7 +87,7 @@ const TEX = (() => {
       }
       return finish(c, false); },
     pentagram() { const [c, g] = canvas(64);
-      g.strokeStyle = '#ff2a10'; g.lineWidth = 2;
+      g.strokeStyle = '#ffffff'; g.lineWidth = 2;   // beyaz: renk malzemeden gelir
       g.beginPath(); g.arc(32, 32, 29, 0, Math.PI * 2); g.stroke();
       g.beginPath(); g.arc(32, 32, 24, 0, Math.PI * 2); g.stroke();
       g.beginPath();
@@ -180,6 +127,66 @@ const TEX = (() => {
       }
       g.fillStyle = '#fffbe0'; g.fillRect(12, 12, 8, 8);
       return finish(c, false); },
+    // ---------- CEHENNEM ----------
+    hellfloor() { const [c, g] = canvas(64);   // bazalt levhalar + içinden lav sızan çatlaklar
+      g.fillStyle = '#1a0c08'; g.fillRect(0, 0, 64, 64);
+      for (let y = 0; y < 64; y += 16) for (let x = 0; x < 64; x += 16) {
+        const v = ri(-8, 8), ox = ri(0, 2), oy = ri(0, 2);
+        g.fillStyle = rgb(48 + v, 26 + v / 2, 20 + v / 3); g.fillRect(x + 1 + ox, y + 1 + oy, 14 - ox, 14 - oy);
+        g.fillStyle = rgb(66 + v, 38 + v / 2, 28); g.fillRect(x + 1 + ox, y + 1 + oy, 14 - ox, 1);
+      }
+      speckle(g, 64, 64, 700, [44, 24, 18], 26);
+      cracks(g, 7, '#ff6010', '#ffd060');
+      return finish(c); },
+    bone() { const [c, g] = canvas(64);   // kafatası ve kemiklerden örülü duvar
+      g.fillStyle = '#2a2216'; g.fillRect(0, 0, 64, 64);
+      for (let row = 0; row < 8; row++) for (let col = 0; col < 8; col++) {
+        const x = col * 8 + (row % 2) * 4, y = row * 8, v = ri(-18, 12);
+        if (rnd() < 0.55) {   // kafatası
+          g.fillStyle = rgb(200 + v, 186 + v, 150 + v); g.fillRect(x + 1, y + 1, 6, 5); g.fillRect(x + 2, y + 6, 4, 1);
+          g.fillStyle = '#140c06'; g.fillRect(x + 2, y + 3, 1, 1); g.fillRect(x + 5, y + 3, 1, 1); g.fillRect(x + 3, y + 5, 2, 1);
+        } else {   // çapraz kemik
+          g.fillStyle = rgb(176 + v, 162 + v, 128 + v); g.fillRect(x, y + 3, 8, 2); g.fillRect(x, y + 2, 1, 4); g.fillRect(x + 7, y + 2, 1, 4);
+        }
+      }
+      speckle(g, 64, 64, 300, [60, 50, 36], 30); grime(g, 64, 64, 40);
+      return finish(c); },
+    bonefloor() { const [c, g] = canvas(64);
+      g.fillStyle = '#4a4232'; g.fillRect(0, 0, 64, 64);
+      for (let y = 0; y < 64; y += 32) for (let x = 0; x < 64; x += 32) {
+        const v = ri(-10, 10); g.fillStyle = rgb(110 + v, 100 + v, 78 + v); g.fillRect(x + 1, y + 1, 30, 30);
+        g.fillStyle = rgb(140 + v, 128 + v, 100 + v); g.fillRect(x + 1, y + 1, 30, 1);
+      }
+      speckle(g, 64, 64, 900, [100, 92, 70], 34); grime(g, 64, 64, 70);
+      cracks(g, 5, '#3a3020', '#1a140a');
+      for (let i = 0; i < 4; i++) { g.fillStyle = '#d8ccb0'; const x = ri(4, 56), y = ri(4, 56); g.fillRect(x, y, 5, 1); g.fillRect(x, y - 1, 1, 3); g.fillRect(x + 4, y - 1, 1, 3); }
+      return finish(c); },
+    gate() { const [c, g] = canvas(64);   // dövme demir parmaklık
+      g.fillStyle = '#0a0606'; g.fillRect(0, 0, 64, 64);
+      for (let x = 2; x < 64; x += 8) { g.fillStyle = '#3a3230'; g.fillRect(x, 0, 4, 64); g.fillStyle = '#5a4a44'; g.fillRect(x, 0, 1, 64);
+        g.fillStyle = '#2a2220'; g.beginPath(); g.moveTo(x - 1, 64); g.lineTo(x + 5, 64); g.lineTo(x + 2, 56); g.fill(); }
+      for (const y of [10, 34]) { g.fillStyle = '#4a3c36'; g.fillRect(0, y, 64, 5); g.fillStyle = '#6a5a50'; g.fillRect(0, y, 64, 1); }
+      for (let i = 0; i < 70; i++) { g.fillStyle = rgb(110 + rnd() * 40, 40, 16, 0.7); g.fillRect(ri(0, 63), ri(0, 63), 1, ri(1, 3)); }   // pas
+      return finish(c); },
+    rune() { const [c, g] = canvas(64, 16);   // parlayan rün şeridi (renk malzemeden gelir)
+      g.fillStyle = '#000'; g.fillRect(0, 0, 64, 16);
+      g.fillStyle = '#fff';
+      for (let x = 2; x < 62; x += 8) {
+        const k = ri(0, 3);
+        g.fillRect(x + 2, 3, 1, 10);
+        if (k === 0) { g.fillRect(x, 3, 5, 1); g.fillRect(x, 8, 5, 1); }
+        if (k === 1) { g.fillRect(x, 6, 5, 1); g.fillRect(x + 4, 3, 1, 5); }
+        if (k === 2) { g.fillRect(x, 12, 5, 1); g.fillRect(x, 3, 1, 4); }
+        if (k === 3) { for (let d = 0; d < 5; d++) g.fillRect(x + d, 3 + d * 2, 1, 1); }
+      }
+      return finish(c); },
+    urn() { const [c, g] = canvas(32);   // kükürt kazanı: çatlak taş
+      g.fillStyle = '#2a2420'; g.fillRect(0, 0, 32, 32);
+      for (let x = 0; x < 32; x++) { const v = Math.sin(x / 32 * Math.PI * 2) * 14; g.fillStyle = rgb(62 + v, 52 + v, 44 + v); g.fillRect(x, 0, 1, 32); }
+      g.fillStyle = '#1a1410'; g.fillRect(0, 5, 32, 2); g.fillRect(0, 25, 32, 2);
+      g.fillStyle = '#e8c020'; for (let x = 2; x < 32; x += 6) { g.fillRect(x, 13, 3, 1); g.fillRect(x + 1, 12, 1, 3); }   // kükürt işareti
+      cracks(g, 3, '#ff7010', '#ffc040');
+      return finish(c); },
     // ---------- OFİS ----------
     carpet() { const [c, g] = canvas(64);
       g.fillStyle = '#3a4250'; g.fillRect(0, 0, 64, 64);
@@ -229,6 +236,11 @@ const TEX = (() => {
     clock() { const [c, g] = canvas(32, 16);
       g.fillStyle = '#0a0a0a'; g.fillRect(0, 0, 32, 16);
       g.fillStyle = '#ff2010'; g.font = 'bold 10px monospace'; g.textAlign = 'center'; g.fillText('17:59', 16, 12);
+      return finish(c, false); },
+    marker() { const [c, g] = canvas(16);   // baş üstü hedef işareti: siyah kenarlı aşağı ok (renk malzemeden)
+      g.fillStyle = '#000'; g.beginPath(); g.moveTo(0.5, 2.5); g.lineTo(15.5, 2.5); g.lineTo(8, 14); g.fill();
+      g.fillStyle = '#fff'; g.beginPath(); g.moveTo(3, 4); g.lineTo(13, 4); g.lineTo(8, 11.5); g.fill();
+      const d = g.getImageData(0, 0, 16, 16); for (let i = 3; i < d.data.length; i += 4) d.data[i] = d.data[i] > 100 ? 255 : 0; g.putImageData(d, 0, 0);
       return finish(c, false); },
     glow() { const [c, g] = canvas(16);
       for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {

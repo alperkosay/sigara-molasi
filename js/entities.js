@@ -73,12 +73,12 @@ const FX = (() => {
   return {
     init(scene) {
       add = new Particles(3000, { additive: true, near: 0.8 }); norm = new Particles(3000, { near: 0.6 }); smoke = new Particles(1500, { near: 1.4, maxSize: 70 });
-      wisp = new Particles(800, { near: 0, maxSize: 10 });   // sigara ucundan yükselen ince duman
+      wisp = new Particles(800, { near: 0, maxSize: 5 });   // sigara ucundan yükselen ince duman
       scene.add(norm.points, smoke.points, wisp.points, add.points);
       decalMat = new THREE.MeshBasicMaterial({ map: TEX.get('blood'), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
     },
     get systems() { return [add, norm, smoke, wisp]; },
-    wisp(p, vel) { wisp.spawn(p.x, p.y, p.z, vel.x * 0.9 + R(0.04), vel.y + 0.25 + Math.random() * 0.15, vel.z * 0.9 + R(0.04), 2 + Math.random(), 0.008, 0.85, 0.85, 0.88, 0.22, -0.1, 1.2, 0.03); },
+    wisp(p, vel) { wisp.spawn(p.x, p.y, p.z, vel.x * 0.9 + R(0.04), vel.y + 0.25 + Math.random() * 0.15, vel.z * 0.9 + R(0.04), 2 + Math.random(), 0.006, 0.85, 0.85, 0.88, 0.13, -0.1, 1.2, 0.02); },
     update(dt) {
       add.update(dt); norm.update(dt); smoke.update(dt); wisp.update(dt);
       for (let i = fireballs.length - 1; i >= 0; i--) {
@@ -109,6 +109,14 @@ const FX = (() => {
     },
     fire(p, n = 2, s = 0.3) {
       for (let i = 0; i < n; i++) add.spawn(p.x + R(s), p.y + R(s), p.z + R(s), R(0.6), 1.5 + Math.random() * 2, R(0.6), 0.35 + Math.random() * 0.3, 0.25, 1, 0.35 + Math.random() * 0.3, 0.05, 1, -2, 1, -0.3);
+    },
+    flame(p, color, s = 1) {   // mangal / meşale alevi (renk temadan)
+      const k = 0.8 + Math.random() * 0.4;
+      add.spawn(p.x + R(0.25 * s), p.y + R(0.1), p.z + R(0.25 * s), R(0.3), (1.6 + Math.random() * 1.6) * s, R(0.3), 0.3 + Math.random() * 0.35, 0.3 * s, color[0] * k, color[1] * k, color[2] * k, 1, -1.5, 1.2, -0.35 * s);
+      if (Math.random() < 0.08) smoke.spawn(p.x, p.y + 0.6 * s, p.z, R(0.2), 1.0, R(0.2), 2.2, 0.35 * s, 0.12, 0.1, 0.1, 0.35, -0.2, 0.8, 0.5);
+    },
+    ember(p, color) {   // havada süzülen köz
+      add.spawn(p.x, p.y, p.z, R(0.4), 0.5 + Math.random() * 0.9, R(0.4), 3 + Math.random() * 3, 0.045, color[0], color[1], color[2], 1, -0.05, 0.1);
     },
     glowDot(p, color, size = 0.1, life = 0.15) { add.spawn(p.x, p.y, p.z, 0, 0, 0, life, size, ...color, 1); },
     trail(p, color, size = 0.12) { add.spawn(p.x + R(0.05), p.y + R(0.05), p.z + R(0.05), R(0.3), R(0.3), R(0.3), 0.25, size, ...color, 0.9, 0, 2, -0.3); },
@@ -156,18 +164,20 @@ const E = (() => {
   function part(parent, w, h, d, m, x, y, z) { const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); o.position.set(x, y, z); parent.add(o); return o; }
   function pivot(parent, x, y, z) { const g = new THREE.Group(); g.position.set(x, y, z); parent.add(g); return g; }
 
+  const MARK = { grunt: 0x70e8ff, runner: 0xffe040, brute: 0xff50ff, skull: 0xffffff };
   function buildModel(type) {
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body);
     const P = { body };
     let mats = [];
     const eyeM = new THREE.MeshBasicMaterial({ color: 0xff2000 });
     if (type === 'grunt') {
-      const skin = lam(0x7a8660), cloth = lam(0x4a4630), dark = lam(0x2a2820), gunM = lam(0x202024);
-      mats = [skin, cloth, dark];
+      const skin = lam(0x9aa890), cloth = lam(0xe4e4dc), dark = lam(0x1a1c24), gunM = lam(0x202024), tie = lam(0xc01010);
+      mats = [skin, cloth, dark, tie];
       P.legL = pivot(body, -0.15, 0.95, 0); part(P.legL, 0.22, 0.95, 0.25, dark, 0, -0.47, 0);
       P.legR = pivot(body, 0.15, 0.95, 0); part(P.legR, 0.22, 0.95, 0.25, dark, 0, -0.47, 0);
       part(body, 0.62, 0.72, 0.36, cloth, 0, 1.3, 0);
       part(body, 0.64, 0.1, 0.38, dark, 0, 1.0, 0);
+      part(body, 0.1, 0.5, 0.02, tie, 0, 1.36, 0.19);   // kravat
       P.head = part(body, 0.34, 0.36, 0.34, skin, 0, 1.85, 0);
       part(P.head, 0.36, 0.12, 0.36, lam(0x2c3020), 0, 0.15, 0);
       part(P.head, 0.07, 0.05, 0.02, eyeM, -0.08, 0.02, 0.175); part(P.head, 0.07, 0.05, 0.02, eyeM, 0.08, 0.02, 0.175);
@@ -177,7 +187,7 @@ const E = (() => {
       P.armR.rotation.x = -1.3; P.armL.rotation.x = -0.9;
       P.muzzle = new THREE.Vector3(0.4, 1.5, 0.75);
     } else if (type === 'runner') {
-      const skin = lam(0x8a2a18), dark = lam(0x3a1008), bone = lam(0xd8ccb0);
+      const skin = lam(0x5a4658), dark = lam(0x241a24), bone = lam(0xd8ccb0);
       mats = [skin, dark];
       P.legL = pivot(body, -0.16, 0.7, 0); part(P.legL, 0.18, 0.7, 0.22, dark, 0, -0.35, 0);
       P.legR = pivot(body, 0.16, 0.7, 0); part(P.legR, 0.18, 0.7, 0.22, dark, 0, -0.35, 0);
@@ -192,7 +202,7 @@ const E = (() => {
       P.armL = pivot(P.torso, -0.35, 0.55, 0); part(P.armL, 0.13, 0.8, 0.15, skin, 0, -0.4, 0); part(P.armL, 0.16, 0.14, 0.12, bone, 0, -0.85, 0.03);
       P.armR = pivot(P.torso, 0.35, 0.55, 0); part(P.armR, 0.13, 0.8, 0.15, skin, 0, -0.4, 0); part(P.armR, 0.16, 0.14, 0.12, bone, 0, -0.85, 0.03);
     } else if (type === 'brute') {
-      const skin = lam(0x6a3424), plate = lam(0x3c3c40), dark = lam(0x2a140c);
+      const skin = lam(0x6a4a80), plate = lam(0x4a4a52), dark = lam(0x241830);
       mats = [skin, plate, dark];
       P.legL = pivot(body, -0.38, 1.1, 0); part(P.legL, 0.42, 1.1, 0.46, dark, 0, -0.55, 0);
       P.legR = pivot(body, 0.38, 1.1, 0); part(P.legR, 0.42, 1.1, 0.46, dark, 0, -0.55, 0);
@@ -216,7 +226,11 @@ const E = (() => {
       for (const s of [-1, 1]) { const h = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 5), hornM); h.position.set(s * 0.38, 0.8, 0); h.rotation.z = -s * 0.6; body.add(h); }
     }
     g.traverse(o => { if (o.isMesh) o.userData.enemy = true; });
-    return { g, P, mats };
+    // okunabilirlik: hafif öz ışık + kafanın üstünde türe göre renkli hedef işareti (ekranda sabit boy, sisten etkilenmez)
+    for (const m of mats) { m.userData.base = m.color.clone().multiplyScalar(0.22); m.emissive.copy(m.userData.base); }
+    const marker = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX.get('marker'), color: MARK[type], sizeAttenuation: false, depthWrite: false, fog: false, transparent: true }));
+    marker.scale.set(0.075, 0.075, 1); g.add(marker);
+    return { g, P, mats, marker };
   }
 
   function spawn(type, pos) {
@@ -227,9 +241,9 @@ const E = (() => {
 
   function create(type, pos) {
     const T = ETYPES[type];
-    const { g, P, mats } = buildModel(type);
+    const { g, P, mats, marker } = buildModel(type);
     const e = {
-      type, T, g, P, mats, pos: pos.clone(), vel: new THREE.Vector3(), hp: T.hp * (1 + G.difficulty * 0.08), maxHp: T.hp,
+      type, T, g, P, mats, marker, pos: pos.clone(), vel: new THREE.Vector3(), hp: T.hp * (1 + G.difficulty * 0.08), maxHp: T.hp,
       r: T.r, h: T.h, dead: false, deadT: 0, flash: 0, cool: 1 + Math.random() * 1.5, meleeCool: 0, phase: Math.random() * 6,
       strafe: Math.random() < 0.5 ? 1 : -1, strafeT: 0, grounded: true, stun: 0, burn: 0, burnBy: null, charge: 0, telegraph: 0,
       stuck: 0, yaw: 0, flyH: 2 + Math.random() * 2, lastHitBy: null,
@@ -287,6 +301,7 @@ const E = (() => {
 
   function die(e, info) {
     e.dead = true; e.deadT = 0;
+    e.marker.visible = false;   // ceset: işaret kaybolur
     const center = tmp.set(e.pos.x, e.pos.y + e.h * 0.6, e.pos.z).clone();
     const gib = info.explosive || info.overkill > 30 || e.type === 'skull' || (info.src === 'kick' && Math.random() < 0.3);
     info.gib = gib;
@@ -317,7 +332,12 @@ const E = (() => {
   // ---------- yapay zeka ----------
   function updateEnemy(e, dt) {
     const T = e.T, pl = G.player;
-    if (e.flash > 0) { e.flash -= dt; e.mats.forEach(m => m.emissive && m.emissive.setHex(e.flash > 0 ? 0xffffff : e.burn > 0 ? 0x802000 : 0)); }
+    e.marker.position.y = e.h + 0.5 + Math.sin(G.time * 4 + e.phase) * 0.08;   // hafif zıplayan işaret
+    e.marker.material.color.setHex(e.flash > 0 ? 0xffffff : MARK[e.type]);
+    if (e.flash > 0) {
+      e.flash -= dt;
+      e.mats.forEach(m => { if (!m.emissive) return; if (e.flash > 0) m.emissive.setHex(0xffffff); else if (e.burn > 0) m.emissive.setHex(0x802000); else m.emissive.copy(m.userData.base); });
+    }
     if (e.dead) {
       e.deadT += dt;
       if (!e.gibbed) {
@@ -341,7 +361,7 @@ const E = (() => {
     if (e.burn > 0) {
       e.burn -= dt; FX.fire(new THREE.Vector3(e.pos.x, e.pos.y + e.h * 0.5, e.pos.z), 2, e.r);
       if (damage(e, 22 * dt, { src: e.burnBy || 'burn' })) return false;
-      if (e.burn <= 0) e.mats.forEach(m => m.emissive && m.emissive.setHex(0));
+      if (e.burn <= 0) e.mats.forEach(m => m.emissive && m.emissive.copy(m.userData.base));
     }
 
     let want = new THREE.Vector3(), spd = T.speed;
@@ -637,16 +657,13 @@ const E = (() => {
   // ---------- eşyalar ----------
   const PICK = {
     health:  { color: 0xff2020, glow: [1, 0.1, 0.1] },
-    shells:  { color: 0xd04010, glow: [1, 0.5, 0.1] },
     bullets: { color: 0xd0b020, glow: [1, 0.9, 0.2] },
     rockets: { color: 0x70a040, glow: [0.4, 1, 0.3] },
-    cigs:    { color: 0xffffff, glow: [1, 1, 1] },
   };
   function pickupMesh(kind) {
     const g = new THREE.Group();
     const M = c => new THREE.MeshBasicMaterial({ color: c });
     if (kind === 'health') { g.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.12), M(0xff2020)), new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.4, 0.12), M(0xff2020))); }
-    else if (kind === 'cigs') { const b = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.3, 0.1), M(0xf4f0e8)); const r = new THREE.Mesh(new THREE.BoxGeometry(0.23, 0.1, 0.11), M(0xc01010)); r.position.y = 0.06; g.add(b, r); }
     else { const n = kind === 'rockets' ? 1 : 3; for (let i = 0; i < n; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(kind === 'rockets' ? 0.14 : 0.08, kind === 'rockets' ? 0.45 : 0.22, kind === 'rockets' ? 0.14 : 0.08), M(PICK[kind].color)); m.position.x = (i - (n - 1) / 2) * 0.12; g.add(m); } }
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX.get('glow'), color: new THREE.Color(...PICK[kind].glow), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.6 }));
     s.scale.setScalar(1.0); g.add(s);
@@ -660,7 +677,6 @@ const E = (() => {
     const p = new THREE.Vector3(e.pos.x, e.pos.y + 1, e.pos.z);
     const n = e.type === 'brute' ? 4 : 1 + (Math.random() < 0.4 ? 1 : 0);
     for (let i = 0; i < n; i++) drop(G.needs(), p);
-    if (Math.random() < (e.type === 'brute' ? 0.5 : 0.06)) drop('cigs', p);
   }
   function updatePickups(dt) {
     const pl = G.player, pp = new THREE.Vector3(pl.pos.x, pl.pos.y + 0.9, pl.pos.z);

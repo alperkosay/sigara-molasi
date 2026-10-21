@@ -18,7 +18,7 @@ const VM = (() => {
   const amb = new THREE.AmbientLight(0x6a5a50, 0.75); scene.add(amb);
   const sun = new THREE.DirectionalLight(0xfff0e0, 0.7); sun.position.set(0.3, 1, 0.4); scene.add(sun);
   const flashLight = new THREE.PointLight(0xffb040, 0, 2.5, 1.5); flashLight.position.set(0.2, -0.1, -0.8); scene.add(flashLight);
-  const fireLight = new THREE.PointLight(0xff7a20, 0, 1.2, 1.5); scene.add(fireLight);
+  const fireLight = new THREE.PointLight(0xff3a18, 0, 1.2, 1.5); scene.add(fireLight);
 
   // ---------- sağ el + silahlar ----------
   const gunRoot = new THREE.Group(); scene.add(gunRoot);
@@ -96,12 +96,13 @@ const VM = (() => {
   // zippo (sol elde)
   const zippo = new THREE.Group(); zippo.position.set(0.0, 0.07, -0.03); lh.add(zippo);
   box(0.034, 0.05, 0.014, M.chrome, 0, 0, 0, zippo);
+  box(0.016, 0.016, 0.016, lam(0xb00c08, { emissive: 0x500000 }), 0, -0.004, 0, zippo);   // kazınmış pentagram (Bedirhan Abi'nin)
   const lidPivot = new THREE.Group(); lidPivot.position.set(0.017, 0.025, 0); zippo.add(lidPivot);
   box(0.034, 0.02, 0.014, M.chrome, -0.017, 0.01, 0, lidPivot);
   box(0.006, 0.012, 0.006, M.gunLight, -0.004, 0.031, 0, zippo); // çark
   const flame = new THREE.Group(); flame.position.set(-0.004, 0.05, 0); zippo.add(flame);
-  const fOut = new THREE.Mesh(new THREE.ConeGeometry(0.009, 0.04, 6), new THREE.MeshBasicMaterial({ color: 0xff6a10, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
-  const fIn = new THREE.Mesh(new THREE.ConeGeometry(0.005, 0.022, 6), new THREE.MeshBasicMaterial({ color: 0xfff0a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const fOut = new THREE.Mesh(new THREE.ConeGeometry(0.009, 0.04, 6), new THREE.MeshBasicMaterial({ color: 0xff1a08, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const fIn = new THREE.Mesh(new THREE.ConeGeometry(0.005, 0.022, 6), new THREE.MeshBasicMaterial({ color: 0xffb0a0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
   fIn.position.y = -0.006; flame.add(fOut, fIn); flame.visible = false;
   const FLAME_LOCAL = new THREE.Vector3(-0.004, 0.07 + 0.05, -0.03);   // el uzayında alevin konumu
 
@@ -224,7 +225,7 @@ const VM = (() => {
       } else if (switchT > 0) switchT = Math.max(0, switchT - dt * 6);
 
       // --- geri tepme yayı ---
-      st.recV += (-st.rec * 160 - st.recV * 16) * dt; st.rec += st.recV * dt;
+      for (let i = 0, n = Math.ceil(dt * 240); i < n; i++) { const h = dt / n; st.recV += (-st.rec * 160 - st.recV * 16) * h; st.rec += st.recV * h; }
       // --- salınım / sallanma ---
       st.sway.x += ((-o.mdx * 0.0006) - st.sway.x) * Math.min(1, dt * 10);
       st.sway.y += ((o.mdy * 0.0006) - st.sway.y) * Math.min(1, dt * 10);
@@ -315,7 +316,7 @@ const VM = (() => {
         if (ct > 0.62) { st.cig = 'none'; lh.visible = false; }
       }
       // kor rengi
-      if (st.cig !== 'none' && st.cig !== 'lighting' || (st.cig === 'lighting' && st.glow > 0)) {
+      if (st.cig === 'lit' || st.cig === 'throwing' || (st.cig === 'lighting' && st.glow > 0)) {
         const g = st.glow * (0.85 + Math.random() * 0.15);
         emberMat.color.setRGB(0.25 + g * 0.75, 0.08 + g * 0.35, 0.03 + g * 0.05);
         emberGlow.material.opacity = g * 0.9;
